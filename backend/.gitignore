@@ -24,3 +24,6 @@ logs
 # dotenv environment variable files
 .env
 .env.*.local
+
+# TypeScript build cache
+*.tsbuildinfo
