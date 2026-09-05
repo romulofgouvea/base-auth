@@ -1,0 +1,17 @@
+{
+  "name": "base-auth-root",
+  "version": "1.0.0",
+  "description": "Base Auth Root Project",
+  "private": true,
+  "scripts": {
+    "infra": "cd docker && docker compose -f docker-compose.infra.yml up -d",
+    "infra:down": "cd docker && docker compose -f docker-compose.infra.yml down",
+    "dev:down": "cd docker && docker compose down",
+    "dev": "npm run dev:down && cd docker && docker compose watch",
+    "up": "npm run infra && cd docker && docker compose up -d",
+    "down": "npm run dev:down && npm run infra:down",
+    "build": "cd docker && docker compose build",
+    "logs": "cd docker && docker compose logs -f",
+    "clean": "cd docker && docker compose -f docker-compose.infra.yml -f docker-compose.yml down -v"
+  }
+}

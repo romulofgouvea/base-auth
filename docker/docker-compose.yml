@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../docker/backend/Dockerfile
+    container_name: base_auth_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ../backend/.env
+    networks:
+      - base_auth_shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/api || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    develop:
+      watch:
+        - action: sync
+          path: ../backend/src
+          target: /app/src
+        - action: rebuild
+          path: ../backend/package.json
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    container_name: base_auth_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    env_file:
+      - ../frontend/.env
+    networks:
+      - base_auth_shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5173 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    develop:
+      watch:
+        - action: sync
+          path: ../frontend/src
+          target: /app/src
+        - action: rebuild
+          path: ../frontend/package.json
+
+networks:
+  base_auth_shared_net:
+    external: true
+    name: base_auth_shared_net

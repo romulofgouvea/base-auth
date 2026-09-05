@@ -34,25 +34,49 @@ email verification, and a basic user profile.
 
 ## Running it
 
-Requires PostgreSQL and Redis. Quickest way, from the repo root:
+`backend/.env` and `frontend/.env` are already committed-locally (gitignored, but
+present on disk) with working defaults — no copying from `.env.example` needed to
+get started. `docker/` mirrors the source project's layout: infra and app compose
+files side by side, plus `backend/Dockerfile` and `frontend/Dockerfile`.
+
+### All-in-Docker (backend + frontend + Postgres + Redis)
+
+From the repo root, same scripts as the source project:
 
 ```bash
-docker compose -f docker-compose.infra.yml up -d
+npm run up      # infra (postgres+redis) then backend+frontend containers
+npm run dev     # same, but with docker compose watch (hot reload)
+npm run logs    # tail all container logs
+npm run down    # stop everything
+npm run clean   # stop and remove volumes
 ```
 
-Then:
+Backend at http://localhost:5000 (Swagger at `/api`), frontend at http://localhost:5173.
+Run migrations once the backend container/network exists:
+
+```bash
+cd docker && docker compose exec backend npm run migration:run
+```
+
+### Local (no Docker for the app, only infra)
+
+```bash
+npm run infra   # just Postgres + Redis in Docker
+```
+
+`backend/.env` ships with `DB_HOST=postgres` / `REDIS_HOST=redis` (Docker network
+service names, for the all-in-Docker path above). Running the backend directly on
+the host instead, change both to `localhost` in `backend/.env` first:
 
 ```bash
 cd backend
-cp .env.example .env   # fill in JWT_SECRET at minimum
 npm install
-npm run migration:run  # creates tables + seeds ADMIN/USER roles and permissions
-npm run start:dev      # http://localhost:5000, Swagger at /api
+npm run migration:run
+npm run start:dev      # http://localhost:5000
 ```
 
 ```bash
 cd frontend
-cp .env.example .env
 npm install
 npm run dev             # http://localhost:5173
 ```
@@ -63,8 +87,11 @@ manually (there's no admin UI for this in the starter).
 
 ## Environment variables
 
-See `backend/.env.example` and `frontend/.env.example`. Notably:
-- `JWT_SECRET` / `JWT_EXPIRATION` / `REFRESH_TOKEN_EXPIRATION_HOURS`
+Real, working `.env` files are already in place; `backend/.env.example` and
+`frontend/.env.example` document the same vars for reference. Notably:
+- `JWT_SECRET` / `JWT_EXPIRATION` / `REFRESH_TOKEN_EXPIRATION_HOURS` — the committed
+  `JWT_SECRET` is a locally-generated random value, fine for local dev; rotate it
+  for anything shared/deployed.
 - `DB_HOST` / `DB_PORT` / `DB_USERNAME` / `DB_PASSWORD` / `DB_NAME`
 - `REDIS_HOST` / `REDIS_PORT` (used for the login rate-limiter and revoked-session cache)
 - `SMTP_*` + `ENABLE_REAL_EMAIL` (leave `ENABLE_REAL_EMAIL=false` to log reset links
@@ -111,7 +138,9 @@ rather than dragged along:
 ```
 base-auth/
 ├── backend/     NestJS API (see backend/.env.example)
-└── frontend/    React + Vite SPA (see frontend/.env.example)
+├── frontend/    React + Vite SPA (see frontend/.env.example)
+└── docker/      docker-compose.infra.yml (postgres+redis), docker-compose.yml
+                 (backend+frontend), backend/Dockerfile, frontend/Dockerfile
 ```
 
 ---
