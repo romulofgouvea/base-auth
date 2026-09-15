@@ -17,7 +17,7 @@ import { HHBaseEntity } from '../entities/hh-base.entity';
  */
 @EventSubscriber()
 export class ActiveFilterSubscriber implements EntitySubscriberInterface {
-  beforeQuery(_event: BeforeQueryEvent): void {
+  beforeQuery(_event: BeforeQueryEvent<any>): void {
     const entityClass = HHBaseEntity;
     void entityClass;
   }

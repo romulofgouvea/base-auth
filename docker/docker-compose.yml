@@ -12,7 +12,7 @@ services:
     networks:
       - base_auth_shared_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/api || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5000/api || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -32,13 +32,13 @@ services:
     container_name: base_auth_frontend
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "3000:3000"
     env_file:
       - ../frontend/.env
     networks:
       - base_auth_shared_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:5173 || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
